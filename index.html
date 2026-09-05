@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.0/axios.min.js"></script>
+</head>
+
+<body>
+    <div class="welcome">
+        <div class="navbar">
+            <div class="brand">
+                <img src="job-seeker.png">
+                <p> Caker</p>
+            </div>
+        </div>
+    </div>
+    <div class="section">
+        <div class="container">
+            <h2>Find Jobs</h2>
+            <div id="jobs">Loading Jobs...</div>
+            <div id="jobsError" hidden>Error occurs to load the jobs...</div>
+            <div class="flex-container">
+            </div>
+        </div>
+    </div>
+
+    <div class="section form">
+        <form>
+            <div class="container">
+                <h2>Apply job</h2>
+                <label for="company">Company</label>
+                <input type="text" id="company" name="company" placeholder="Company">
+                <label for="position">Position</label>
+                <input type="text" id="position" name="position" placeholder="Position">
+                <label for="status">Status</label>
+                <select id="status" name="status">
+                    <option value="Applied">Applied</option>
+                    <option value="Interview">Interview</option>
+                    <option value="Offered">Offered</option>
+                    <option value="Rejected">Rejected</option>
+                </select>
+                <label for="Notes">Notes</label>
+                <textarea id="notes" name="notes" placeholder="notes" style="height:200px"></textarea>
+                <label for="apply-date">Date Applied:</label>
+                <input type="date" id="apply-date" name="apply_date">
+                <button id="application" type="submit" value="Submit">Submit</button>
+            </div>
+        </form>
+    </div>
+    <div class="section grid-container">
+        <h2>Job Progress</h2>
+        <div class="status-box applied">
+            <p class="label">Applied</p>
+            <p class="count">0</p>
+        </div>
+        <div class="status-box interview">
+            <p class="label">Interview</p>
+            <p class="count">0</p>
+        </div>
+        <div class="status-box offer">
+            <p class="label">Offer</p>
+            <p class="count">0</p>
+        </div>
+        <div class="status-box rejected">
+            <p class="label">Rejected</p>
+            <p class="count">0</p>
+        </div>
+    </div>
+    <div class="section track">
+        <div class="container">
+            <h2>Track and update</h2>
+            <label for="filter">Filter by status</label>
+            <label for="status">Status</label>
+            <select id="status" name="status">
+                <option value="Applied">Applied</option>
+                <option value="Interview">Interview</option>
+                <option value="Offered">Offered</option>
+                <option value="Rejected">Rejected</option>
+            </select>
+
+            <div class="flex-container ">
+                <div class="application-box applied">
+                    <p class="company">NVIDIA</p>
+                    <p class="description position">Software intern</p>
+                    <p class="description status">Status: Offered</p>
+                    <p class="description notes">Notes: first choice</p>
+                    <p class="description date">Applied: 5/24/2027</p>
+                    <input type="submit" value="Delete">
+                </div>
+
+                <div class="application-box interview">
+                    <p class="company">AMD</p>
+                    <p class="description position">Software intern</p>
+                    <p class="description status">Status: Offered</p>
+                    <p class="description notes">Notes: first choice</p>
+                    <p class="description date">Applied: 5/24/2027</p>
+                    <input type="submit" value="Delete">
+                </div>
+            </div>
+
+            <h2>Update application</h2>
+            <label for="application">Application</label>
+            <select id="application-status"  name="status">
+                <option value="nvidia-intern">Nvidia - Software intern</option>
+                <option value="amd-intern">AMD - Software intern</option>
+            </select>
+
+            <label for="status">Status</label>
+            <select id="update-status" name="status">
+                <option value="Applied">Applied</option>
+                <option value="Interview">Interview</option>
+                <option value="Offered">Offered</option>
+                <option value="Rejected">Rejected</option>
+            </select>
+
+            <input id = "update-submit" type="submit" value="Update">
+        </div>
+    </div>
+
+    </div>
+
+    <div class="section form">
+        <div class="container">
+            <h2>Contact Us</h2>
+            <form action="action_page.php">
+                <label for="name">Name</label>
+                <input type="text" id="name" name="name" placeholder="Name">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" required placeholder="john@example.com">
+                <label for="subject">Subject</label>
+                <textarea id="subject" name="subject" placeholder="Write something.." style="height:200px"></textarea>
+                <input type="submit" value="Send">
+            </form>
+        </div>
+    </div>
+    <script src="script.js"></script>
+
+</body>
+
+</html>
