@@ -34,24 +34,76 @@ let offeredJobs = [
     }
 ];
 let combinedJobs = [];
-//EFFECTS: Getting data from API
-async function fetchJobs() {
-    try {
-        const response = await axios.get('https://www.arbeitnow.com/api/job-board-api');
-        untrackedJobs = response.data.data;
+let isSaved = false;
+//EFFECTS: Load data when app starts or get from API if still localStorage is empty
+document.addEventListener("DOMContentLoaded", loadData());
+
+async function loadData() {
+
+    const untrackedJobsData = localStorage.getItem("untracked");
+    const trackedJobsData = localStorage.getItem("tracked");
+    const rejectedJobsData = localStorage.getItem("rejected");
+    const offeredJobsData = localStorage.getItem("offered");
+    const interviewJobsData = localStorage.getItem("interview");
+    const isSavedData = localStorage.getItem("isSaved");
+
+    untrackedJobs = JSON.parse(untrackedJobsData);
+    trackedJobs = JSON.parse(trackedJobsData);
+    rejectedJobs = JSON.parse(rejectedJobsData);
+    offeredJobs = JSON.parse(offeredJobsData);
+    interviewJobs = JSON.parse(interviewJobsData);
+    isSaved = JSON.parse(isSavedData);
+    if (!isSaved || isSaved == null) {
+        try {
+            const response = await axios.get('https://www.arbeitnow.com/api/job-board-api');
+            untrackedJobs = response.data.data;
+            const jobs = untrackedJobs.slice(0, 10).map(job => createJobCard(job));
+            trackedJobs = [];
+            rejectedJobs = [];
+            interviewJobs = [];
+            offeredJobs = [];
+            isSaved = false;
+            jobsContainer.innerHTML = jobs.join(" ");
+        } catch (error) {
+            jobsError.style.display = "block";
+        } finally {
+            jobsLoading.style.display = "none";
+        }
+    } else {
         const jobs = untrackedJobs.slice(0, 10).map(job => createJobCard(job));
         jobsContainer.innerHTML = jobs.join(" ");
-    } catch (error) {
-        jobsError.style.display = "block";
-    } finally {
         jobsLoading.style.display = "none";
+
     }
+
+    console.log("LOADED:");
+    console.log("untracked:", untrackedJobs);
+    console.log("tracked:", trackedJobs);
+    console.log("rejected:", rejectedJobs);
+    console.log("offered:", offeredJobs);
+    console.log("interview:", interviewJobs);
+    console.log("Saved:", isSaved);
+    console.log("combined:", isSaved);
+
+    renderJobTracking();
+    renderUpdateApplication();
 }
+//EFFECTS: Save every session storage (array) into local in JSON format
+function saveData() {
+    localStorage.setItem("untracked", JSON.stringify(untrackedJobs));
+    localStorage.setItem("tracked", JSON.stringify(trackedJobs));
+    localStorage.setItem("rejected", JSON.stringify(rejectedJobs));
+    localStorage.setItem("offered", JSON.stringify(offeredJobs));
+    localStorage.setItem("interview", JSON.stringify(interviewJobs));
+    localStorage.setItem("isSaved", JSON.stringify(true));
+}
+
+
+
 
 //EFFECTS: form submission value will be added to the applied job array.
 // and the job application will be rendered automatically. 
 applyJobForm.addEventListener('submit', (event) => {
-    event.preventDefault();
     const company = document.querySelector('input[type="text"]#company');
     const position = document.querySelector('input[type="text"]#position');
     const formStatus = document.querySelector('form select#status');
@@ -65,6 +117,7 @@ applyJobForm.addEventListener('submit', (event) => {
         status: formStatus.value
     };
     addJob(job);
+    saveData();
     applyJobForm.reset();
     renderCount();
     renderUpdateApplication();
@@ -81,7 +134,7 @@ function addJob(job) {
         rejectedJobs.push(job);
     }
 
-    
+
 }
 
 // EFFECTS: Creating 10 jobs to be displayed on the job finding section 
@@ -103,18 +156,20 @@ function createJobCard(job) {
     </div>    
   `;
 }
-fetchJobs();
 // EFFECTS: Mark the job as tracked and add it to the tracked list
 // and the track and update section will be re rendered with the current tracked list 
 document.addEventListener('click', (e) => {
-    if (e.target.classList.contains("btnFilled")) {
+    if (e.target.closest(".btnFilled")) {
         const subSection = e.target.closest(".sub-section");
         const title = subSection.querySelector("h4").textContent;
         const place = subSection.querySelector(".place").textContent;
         subSection.classList.add("done");
         subSection.querySelector(".notes").remove();
-        subSection.querySelector(".actions input").remove();
-        subSection.querySelector(".actions input").remove();
+        const actionInput = subSection.querySelector(".actions input");
+
+        if (actionInput) {
+            actionInput.remove();
+        }
 
         const savedBtn = document.createElement("input");
         savedBtn.value = "Already in tracker";
@@ -123,10 +178,22 @@ document.addEventListener('click', (e) => {
         subSection.querySelector(".actions").append(savedBtn);
 
         const currentDate = new Date().toLocaleDateString('en-GB');
-        const jobTracked = untrackedJobs.find(job => job.title === title && job.company_name === place);
+        const jobTracked = untrackedJobs.find(
+            job => job.title === title && job.company_name === place
+        );
+
+        untrackedJobs = untrackedJobs.filter(
+            job => !(job.title === title && job.company_name === place)
+        );
+        console.log("title:", title);
+        console.log("place:", place);
+        console.log("jobTracked:", jobTracked);
+        console.log("before:", untrackedJobs);
+
         jobTracked.date = currentDate;
         jobTracked.status = "Applied";
         trackedJobs.push(jobTracked);
+        saveData();
         renderJobTracking();
     }
 });
@@ -150,11 +217,32 @@ document.addEventListener('click', function (event) {
             deleteJobFromPreviousStatus(jobTarget, jobTarget.status);
             renderCount();
             renderUpdateApplication();
-
         }
     }
 });
+function refreshTracker() {
+    renderCount();
+    renderUpdateApplication();
+    renderCurrentStatus();
+}
+function renderCurrentStatus() {
+    let jobs = [];
 
+    if (trackStatusDropdown.value === "Applied") {
+        jobs = trackedJobs.map(job => createJobApplied(job));
+
+    } else if (trackStatusDropdown.value === "Interview") {
+        jobs = interviewJobs.map(job => createJobApplied(job));
+
+    } else if (trackStatusDropdown.value === "Offered") {
+        jobs = offeredJobs.map(job => createJobApplied(job));
+
+    } else if (trackStatusDropdown.value === "Rejected") {
+        jobs = rejectedJobs.map(job => createJobApplied(job));
+    }
+
+    trackContainer.innerHTML = jobs.join("");
+}
 // Update total job application status count 
 function renderCount() {
     appliedCount.textContent = trackedJobs.length;
@@ -169,6 +257,7 @@ function renderUpdateApplication() {
         return `<option value="${job.company_name}-${job.title}">${job.company_name} - ${job.title}</option>`
     });
     jobApplicationTrackDropdown.innerHTML = jobs.join(" ");
+
 }
 
 
@@ -194,40 +283,31 @@ function deleteJobFromPreviousStatus(job, previousStatus) {
 updateSubmitBtn.addEventListener('click', () => {
     const jobApplicationDropdownValue = jobApplicationTrackDropdown.value;
     const jobTarget = combinedJobs.find(job => `${job.company_name}-${job.title}` === jobApplicationDropdownValue);
-    if (jobApplicationUpdateStatusDropdown.value === "Applied") {
+        if (!jobTarget) {
+        return;
+    }
         deleteJobFromPreviousStatus(jobTarget, jobTarget.status);
+    
+    if (jobApplicationUpdateStatusDropdown.value === "Applied") {
         jobTarget.status = "Applied";
         trackedJobs.push(jobTarget);
     } else if (jobApplicationUpdateStatusDropdown.value === "Interview") {
-        deleteJobFromPreviousStatus(jobTarget, jobTarget.status);
         jobTarget.status = "Interview";
         interviewJobs.push(jobTarget);
     } else if (jobApplicationUpdateStatusDropdown.value === "Offered") {
-        deleteJobFromPreviousStatus(jobTarget, jobTarget.status);
         jobTarget.status = "Offered";
         offeredJobs.push(jobTarget);
     } else if (jobApplicationUpdateStatusDropdown.value === "Rejected") {
-        deleteJobFromPreviousStatus(jobTarget, jobTarget.status);
         jobTarget.status = "Rejected";
         rejectedJobs.push(jobTarget);
     }
-    renderCount();
-    renderUpdateApplication();
+    saveData();
+    refreshTracker();
+    
 });
 
 trackStatusDropdown.addEventListener('change', (event) => {
-    let jobs = [];
-    if (event.target.value === "Applied") {
-        jobs = trackedJobs.map(job => createJobApplied(job));
-    } else if (event.target.value === "Interview") {
-        jobs = interviewJobs.map(job => createJobApplied(job));
-    } else if (event.target.value === "Offered") {
-        jobs = offeredJobs.map(job => createJobApplied(job));
-    } else if (event.target.value === "Rejected") {
-        jobs = rejectedJobs.map(job => createJobApplied(job));
-    }
-    trackContainer.innerHTML = jobs.join(" ");
-
+    renderCurrentStatus();
     renderCount();
 
 });
@@ -246,5 +326,4 @@ function createJobApplied(job) {
         </div>
     `;
 }
-renderJobTracking();
 
