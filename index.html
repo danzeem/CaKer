@@ -11,14 +11,25 @@
 
 <body>
     <div class="welcome">
+
         <div class="navbar">
+
             <div class="brand">
-                <img src="job-seeker.png">
-                <p> Caker</p>
+                <img src="job-seeker.png" alt="Job Seeker logo">
+                <p>Caker</p>
             </div>
+
+            <div class="nav-links">
+                <a href="#jobs-section">Find Jobs</a>
+                <a href="#application">Applications</a>
+                <a href="#track">Track Status</a>
+                <a href="#add-job">Add Job</a>
+            </div>
+
         </div>
+
     </div>
-    <div class="section" id="jobs">
+    <div class="section" id="jobs-section">
         <div class="container">
             <h2>Find Jobs</h2>
             <div id="jobs">Loading Jobs...</div>
@@ -51,7 +62,7 @@
             </div>
         </form>
     </div>
-    <div class="section grid-container">
+    <div class="section grid-container" id="track">
         <h2>Job Progress</h2>
         <div class="status-box applied">
             <p class="label">Applied</p>
@@ -70,7 +81,7 @@
             <p class="count">0</p>
         </div>
     </div>
-    <div class="section track" id="track">
+    <div class="section track" id="add-job">
         <div class="container">
             <h2>Track and update</h2>
             <label for="filter">Filter by status</label>
@@ -104,7 +115,7 @@
 
             <h2>Update application</h2>
             <label for="application">Application</label>
-            <select id="application-status"  name="status">
+            <select id="application-status" name="status">
                 <option value="nvidia-intern">Nvidia - Software intern</option>
                 <option value="amd-intern">AMD - Software intern</option>
             </select>
@@ -117,13 +128,13 @@
                 <option value="Rejected">Rejected</option>
             </select>
 
-            <input id = "update-submit" type="submit" value="Update">
+            <input id="update-submit" type="submit" value="Update">
         </div>
     </div>
 
     </div>
 
-    <div class="section form" id="add-job">
+    <div class="section form">
         <div class="container">
             <h2>Contact Us</h2>
             <form action="action_page.php">
